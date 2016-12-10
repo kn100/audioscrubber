@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">AudioScrubber</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="PlayingAudio">Playing</string>
+    <string name="mediaPlayerError">Error initialising media player</string>
+    <string name="fileSelectionError">File selection error, make sure you\'re selecting an audio file.</string>
+    <string name="audio_selection_hint">Select audio by swiping left</string>
+    <string name="application_name">Audio Scrubber</string>
+    <string name="app_desc">Easily scrub through audio.</string>
+</resources>
