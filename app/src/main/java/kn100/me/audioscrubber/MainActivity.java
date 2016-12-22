@@ -1,6 +1,8 @@
 package kn100.me.audioscrubber;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -25,9 +27,13 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+
     public MediaPlayer mediaPlayer = new MediaPlayer();
     public TextView textProgress;
+    private Handler mHandler = new Handler();
     SeekBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity
         progressBar = (SeekBar) findViewById(R.id.seekBar);
         textProgress =  (TextView) findViewById(R.id.textProgress);
     }
+
     public void togglePlayback() {
         if(mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
@@ -55,18 +62,21 @@ public class MainActivity extends AppCompatActivity
         }
         updateInterface();
     }
+
     public void seekRelative(int seek) {
         mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()+seek);
     }
+
     public void updateInterface() {
         ImageView btnPlayPause = (ImageView) findViewById(R.id.btn_playpause);
-        if (!mediaPlayer.isPlaying()) {
-            btnPlayPause.setImageResource(R.mipmap.play_button);
-        } else {
+        if (mediaPlayer.isPlaying()) {
             btnPlayPause.setImageResource(R.mipmap.pause_button);
+        } else {
+            btnPlayPause.setImageResource(R.mipmap.play_button);
         }
 
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -75,13 +85,6 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
     }
 
     @Override
@@ -109,6 +112,7 @@ public class MainActivity extends AppCompatActivity
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("audio/*");
             startActivityForResult(intent, 1);
+            String x = "poptarts";
         } else if (id == R.id.nav_exit) {
             System.exit(0);
         }
@@ -134,7 +138,20 @@ public class MainActivity extends AppCompatActivity
 
         }
     }
-    private Handler mHandler = new Handler();
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+        Toast toast = Toast.makeText(this, sharedPref.getString("URI", ""), Toast.LENGTH_SHORT);
+        toast.show();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+        Toast toast = Toast.makeText(this, "onResume woo!", Toast.LENGTH_SHORT);
+        toast.show();
+    }
     protected void playAudio(Uri filepath) {
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try{
@@ -143,9 +160,13 @@ public class MainActivity extends AppCompatActivity
         } catch(Exception e) {
             Toast toast = Toast.makeText(this, R.string.mediaPlayerError,Toast.LENGTH_SHORT);
             toast.show();
+            return;
         }
-
         mediaPlayer.start();
+        SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("URI", filepath.getPath());
+        editor.commit();
         setButtonListeners();
         updateInterface();
         progressBar.setMax(mediaPlayer.getDuration()/1000);
@@ -190,7 +211,6 @@ public class MainActivity extends AppCompatActivity
         });
         TextView playingName = (TextView) findViewById(R.id.txt_audioName);
         playingName.setText(R.string.PlayingAudio);
-
     }
 
     protected void setButtonListeners() {
